@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=320">
+<title>AdMaxim Rich Media Shell</title>
+<style type="text/css">
+	body{margin:0; padding:0; background:grey;} 
+</style>
+</head>
+<body>
+<div id="bg" style="position:absolute; top:0px; left:0px; width:320px; height:460px;"></div>
+
+    <script type="text/javascript" src="config.js"></script>
+
+
+	<script type="text/javascript">
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		var standalone_from_url = getUrlVar('standalone');
+
+		var isStandalone = (typeof standalone_from_url != "undefined" && standalone_from_url === "yes" || typeof standalone != "undefined" && standalone === "yes") ? true : false;
+	
+		function getUrlVar(key){
+			var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search);
+			return (result && unescape(result[1]) || undefined);
+		}	
+	</script>
+    <script type="text/javascript" src="scripts/richMedia/exp.js"></script>
+    <div id="AdMaximBanner" style="position:absolute; top:0px; left:0px"></div>
+
+
+</div>
+
+</body>
+</html>
