@@ -4,24 +4,65 @@
 
 var Exp_Shell = function(){
 
-	//var expandable = isStandalone;
-	//console.log("expandable:" + expandable);
+	var bannerUrl = (typeof previewBannerUrl != "undefined")? previewBannerUrl : "scripts/richMedia/media/banner.jpg";
 
-	var ADMAXIM_BANNER_W = 320;
-	var ADMAXIM_BANNER_H = 50;
+	var ADMAXIM_BANNER_W = 768;
+	var ADMAXIM_BANNER_H = 120;
 
-	var ADMAXIM_RICHMEDIA_W = 320;
-	var ADMAXIM_RICHMEDIA_H = 460;
-
-
-
-
+	var RM_DESIGN_W = 768;
+	var RM_DESIGN_H = 1104;
 
 	var adBannerW = (ADMAXIM_BannerWidth != undefined) ? ADMAXIM_BannerWidth : ADMAXIM_BANNER_W;
 	var adBannerH = (ADMAXIM_BannerHeight != undefined) ? ADMAXIM_BannerHeight : ADMAXIM_BANNER_H;
 
-	var adExpandW = ADMAXIM_RICHMEDIA_W;
-	var adExpandH = ADMAXIM_RICHMEDIA_H;
+	var standalone = (typeof isStandalone != "undefined" && isStandalone) ? true : false;
+
+	var isMobile = {
+    	Android: function() {
+        	return navigator.userAgent.match(/Android/i);
+    	},
+	    BlackBerry: function() {
+	        return navigator.userAgent.match(/BlackBerry/i);
+	    },
+	    iOS: function() {
+	        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+	    },
+	    Opera: function() {
+	        return navigator.userAgent.match(/Opera Mini/i);
+	    },
+	    Windows: function() {
+	        return navigator.userAgent.match(/IEMobile/i);
+	    },
+	    any: function() {
+	        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+	    }
+	};
+
+	var page_scale;
+	/*
+	if( isMobile.any() ){
+		page_scale = ($(window).width() / RM_DESIGN_W);
+	} else {
+		page_scale = 1;
+	}*/
+	
+	var windowWidth = $(window).width();
+	if (windowWidth < RM_DESIGN_W){
+		page_scale = windowWidth / RM_DESIGN_W;
+	} else {
+		page_scale = 1;
+	}
+
+
+	var adExpandW = RM_DESIGN_W * page_scale;
+	var adExpandH = RM_DESIGN_H * page_scale;
+
+ 	if (ADMAXIM_BannerWidth === undefined) adBannerW = adBannerW * page_scale;
+	if (ADMAXIM_BannerHeight === undefined) adBannerH = adBannerH * page_scale;
+
+
+
+
 
 
 	var clickUrl = (ADMAXIM_clickUrl != undefined) ? ADMAXIM_clickUrl  : " ";
@@ -29,8 +70,6 @@ var Exp_Shell = function(){
 
 	var appId = (ADMAXIM_appId != undefined) ? ADMAXIM_appId : "";
 
-
-	//var assetRoot = (ADMAXIM_assetRoot != undefined) ? ADMAXIM_assetRoot : undefined;
 	var assetRoot = "http://cdnuk.admaxim.com.s3.amazonaws.com/";
 
 
@@ -40,12 +79,15 @@ var Exp_Shell = function(){
 	} else {
 		assetUrl = '';
 	}
-	console.log("assetUrl:" + assetUrl);
+	//console.log("assetUrl:" + assetUrl);
+	var iframeUrl = (typeof externalAdUrl != "undefined")? externalAdUrl : assetUrl + "scripts/richMedia/expanded.html";
+	
 
-	var iframeUrl = assetUrl + "scripts/richMedia/expanded.html?clickid=" + clickId + "&appid=" + appId;
+	if (typeof ADMAXIM_clickId != "undefined" && typeof ADMAXIM_appId != "undefined"){
+		iframeUrl += "?clickid=" + ADMAXIM_clickId + "&appid=" + ADMAXIM_appId;
+	}
 
-
-	var adBanner = (ADMAXIM_adBanner != undefined) ? ADMAXIM_adBanner : "scripts/richMedia/media/banner.jpg";
+	var adBanner = (ADMAXIM_adBanner != undefined) ? ADMAXIM_adBanner : bannerUrl;
 
 	//var closeBtnUrl = assetUrl + "btnClose.png";
 
@@ -54,7 +96,7 @@ var Exp_Shell = function(){
 	var adLoaded = false;
 
 	var bannerStr = "";
-	bannerStr += "<img id=\"adBanner\" onclick='exp_shell.bannerClick()' src=\""+adBanner+"\" style=\"display:block; width:"+adBannerW+"px; height:"+adBannerH+"px; \" \/>";
+	if (!standalone) bannerStr += "<img id=\"adBanner\" onclick='exp_shell.bannerClick()' src=\""+adBanner+"\" style=\"display:block; width:"+adBannerW+"px; height:"+adBannerH+"px; \" \/>";
 	bannerStr += "<img id=\"AdMaximTrack\" style=\"display:block; margin:-1px 0 0 -1px; padding:0; width:1px; height:1px\" \/>";
 	var iframeStr = "<iframe id='adFrame' allowtransparency='true' scrolling='no' src='' width='0' height='0' style='border:none; position:absolute; top:0; left:0;'></iframe>";
 	var expandedExp;
@@ -82,20 +124,71 @@ var Exp_Shell = function(){
 		expandedExp = document.getElementById("adExpand");
 		expandedIframe = document.getElementById("adFrame");
 
+		if (!standalone){
+			var btnW = 60;	
+			var btnH = 60;
 
-		
-		var closeBtn = document.createElement('div');
-		closeBtn.setAttribute('onclick', 'exp_shell.closeBtnClick()');
-		closeBtn.style.width = adBannerH + "px";
-		closeBtn.style.height = adBannerH + "px";
-		closeBtn.style.right = "0px";
-		closeBtn.style.top = "0px";
-		closeBtn.style.position = "absolute";
-		ex.appendChild(closeBtn);
+			var imgBtn = document.createElement('img');
+			imgBtn.src = assetUrl + "scripts/richMedia/media/close_btn.png";
+			imgBtn.style.width = btnW * page_scale + "px";
+			imgBtn.style.height = btnH * page_scale + "px";
+			imgBtn.style.right = "0px";
+			imgBtn.style.top = "0px";
+			imgBtn.style.position = "absolute";
+			ex.appendChild(imgBtn);
+			
+			var closeBtn = document.createElement('div');
+			closeBtn.setAttribute('onclick', 'exp_shell.closeBtnClick()');
+			closeBtn.style.width = btnW * page_scale + "px";
+			closeBtn.style.height = btnH * page_scale + "px";
+			closeBtn.style.right = "0px";
+			closeBtn.style.top = "0px";
+			closeBtn.style.position = "absolute";
+			ex.appendChild(closeBtn);
+		} else {
+			expandExp();
+		}
+	
 
-
+		updateiFrameSize();
 
 	}
+
+
+	function updateiFrameSize(){	
+		var adFrameCss = "";
+		adFrameCss += ' transform-origin: 0% 0%;';
+		adFrameCss += ' -ms-transform-origin: 0% 0%;';
+		adFrameCss += ' -webkit-transform-origin: 0% 0%;';
+		adFrameCss += ' -moz-transform-origin: 0% 0%;';
+		adFrameCss += ' -o-transform-origin: 0% 0%;',
+		adFrameCss += ' transform: scale('+page_scale+','+page_scale+');';
+		adFrameCss += ' -ms-transform: scale('+page_scale+','+page_scale+');';
+		adFrameCss += ' -webkit-transform: scale('+page_scale+','+page_scale+');';
+		adFrameCss += ' -o-transform: scale('+page_scale+','+page_scale+');';
+		adFrameCss += ' -moz-transform: scale('+page_scale+','+page_scale+');';
+		adFrameCss += ' -ms-transform: scale('+page_scale+','+page_scale+');';
+
+		console.log(adFrameCss);
+		addCssClass('#adFrame', adFrameCss); 
+	}
+
+	function addCssClass ( selector, styles ){
+        try {
+            style = document.getElementById('myCustomStyleID');
+            temp = style.innerHTML;
+            style.innerHTML = temp + selector + "{ " + styles + "}\n";
+        }
+        catch (err)
+        {
+            style = document.createElement("style");
+            style.id = 'myCustomStyleID'
+            style.setAttribute('type', 'text/css');
+            style.innerHTML = selector + "{ " + styles + " }\n";
+            document.head.insertBefore(style,document.head.childNodes[0]);   
+        }
+    }
+
 
 	function closeExpand(){
 		//expandedExp.style.display = "none";
@@ -122,8 +215,8 @@ var Exp_Shell = function(){
 		expandedExp.style.left = "0px";
 		expandedExp.style.top = "0px";
 
-		expandedIframe.width = adExpandW;
-		expandedIframe.height = adExpandH;
+		expandedIframe.width = RM_DESIGN_W;
+		expandedIframe.height = RM_DESIGN_H;
 		expandedIframe.src = iframeUrl;
 	}
 

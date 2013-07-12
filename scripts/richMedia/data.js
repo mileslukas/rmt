@@ -5,11 +5,11 @@ var admaxim_ad =
 		"adid"				: "ad_template_id",
 		"adgroupid"			: "ad_template_group",
 		"showhotspots"		: "no",
-		"enabletracking"	: "yes",
+		"enabletracking"	: "no",
 		"startingpage"		: "0",
-		"width"				: "320",
-		"height"			: "460",
-		"menuheight"		: "50",
+		"width"				: "768",
+		"height"			: "1200",
+		"menuheight"		: "100",
 		'gallery':
 		{
 			'pages':
@@ -214,13 +214,7 @@ var admaxim_ad =
 				  	'track':'page3_menu',
 					'track2':'',
 					'icon':'media/icon_share.png'
-				},
-				{
-				   	'type':'close',
-				  	'track':'close_btn',
-					'track2':'',
-					'icon':'media/icon_close.png'
-				}  
+				} 
 			],
 			'selected' :
 			{

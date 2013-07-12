@@ -4,6 +4,8 @@
 // version 2.8.4 tracking update
 // version 2.8.2 update to scale ads on anything but ios
 
+// version 2.8.3 update for calendar links
+
 var _gaq = _gaq || [];
 _gaq.push(['admaxim_tracking._setAccount', 'UA-37035980-1']);
 _gaq.push(['admaxim_tracking._trackPageview']);
@@ -16,7 +18,7 @@ _gaq.push(['admaxim_tracking._trackPageview']);
 
 
 var admaxim_ad_experience;
-var admaxim_jquery = "http://code.jquery.com/jquery-latest.min.js";
+var admaxim_jquery = "jquery.min.js";
 var admaxim_additional_js = [];
 var admaxim_num_loaded_js = 0;
 
@@ -348,8 +350,13 @@ var AdMaximAdExperience = function() {
 		});
 		
 		var menuSpace;
-		if (admaxim_ad.resources.usemenu != "no") menuSpace = menuH;
-			else menuSpace = 0;
+		if (admaxim_ad.resources.usemenu != "no") {
+			menuSpace = menuH;
+		} else {
+			menuSpace = 0;
+			pageW = ad_width;
+			pageH = ad_height;
+		}
 
 		$('#pageHolder')
 			.css({'width':pageW +'px','height':pageH +'px','top':menuSpace+'px','left':'0px'});
@@ -433,20 +440,32 @@ var AdMaximAdExperience = function() {
 				for(var j = 0;j < pageData[i].links.length; j++) {
 					
 					var linkName = "page"+i+"link"+j;
-					var linkDiv = "<div id=\""+linkName+"\" class=\"linkDiv\" ";
 					var linkData = pageData[i].links[j];
+					var linkUrl;
+					var newWindow = 'yes';
+					var linkDiv = "<div id=\""+linkName+"\" class=\"linkDiv\" ";
 
-					if (linkData.url != undefined) {
-						var linkUrl;
-						if (linkData.type == "fb_share") {
+					switch(linkData.type){
+						case "fb_share":
 							linkUrl = "http://www.facebook.com/sharer.php?u=" + linkData.url;
-						} else if (linkData.type == "twt_share") {
+						break;
+
+						case "twt_share":
 							linkUrl = "https://twitter.com/share?url=" + linkData.url;
-						} else {
+						break;
+
+						case "calendar":
 							linkUrl = linkData.url;
-						}
-						linkDiv +=  "onclick=\"admaxim_ad_experience.openOutsideLink('"+linkUrl+"','"+linkName+"', '"+linkName+"')\"";
+							newWindow = "no";
+						break;
+
+						default:
+							linkUrl = linkData.url;
+						break;
 					}
+
+
+					linkDiv +=  "onclick=\"admaxim_ad_experience.openOutsideLink('"+linkUrl+"','"+linkName+"', '"+linkName+"', '"+newWindow+"')\"";
 					linkDiv +=  "><\/div>";
 	
 					$('#page' + i).append(linkDiv);
@@ -1351,9 +1370,14 @@ var AdMaximAdExperience = function() {
 
 	}
 	
-	this.openOutsideLink = function(url, trackId, trackId2) {
+	this.openOutsideLink = function(url, trackId, trackId2, newWindow) {
 		that.trackEvent(trackId, trackId2);
-		window.open(url,'_blank');	
+
+		if (newWindow === "yes"){
+			window.open(url,'_blank');
+		} else {
+			window.open(url,'_self');
+		}		
 	}
 	
 	
